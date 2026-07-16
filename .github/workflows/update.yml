@@ -1,0 +1,62 @@
+name: update-tracker
+
+# クラウド（GitHub Actions）で自動更新する。自分のMacを起動しておく必要はない。
+on:
+  schedule:
+    - cron: "*/30 * * * *"   # 30分ごと（GitHubの都合で数分ずれることあり）
+  workflow_dispatch: {}        # 「Actions」タブから手動実行もできる
+  push:
+    branches: [ main ]
+    paths:                     # 文言や設定を編集したら作り直す
+      - "template.html"
+      - "build.js"
+      - "data.json"
+      - "scripts/**"
+      - ".github/workflows/**"
+
+permissions:
+  contents: write              # 生成物をリポジトリに書き戻すため
+
+concurrency:
+  group: update-tracker
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install Playwright
+        run: |
+          npm install --no-save playwright
+          npx playwright install --with-deps chromium
+
+      - name: Pull data (シートから取得＋24h差分計算)
+        env:
+          # リポジトリの Settings → Secrets and variables → Actions で
+          # DATA_ENDPOINT にシート集計のURLを登録すると本番データになる。
+          # 未登録ならサンプルデータのまま動く。
+          DATA_ENDPOINT: ${{ secrets.DATA_ENDPOINT }}
+        run: node scripts/pull_data.js
+
+      - name: Build & render
+        run: |
+          node build.js
+          node scripts/render_png.js
+
+      - name: Commit if changed
+        run: |
+          git config user.name "tracker-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add supporter-tracker.png supporter-tracker.html index.html data.json history.json
+          if git diff --cached --quiet; then
+            echo "変化なし。コミットしない。"
+          else
+            git commit -m "auto: サポータートラッカー更新 $(date '+%Y-%m-%d %H:%M')"
+            git push
+          fi
