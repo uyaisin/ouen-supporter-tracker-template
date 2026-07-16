@@ -24,6 +24,8 @@ Googleシート（報告フォームの「都道府県」列）
 ## 作り方
 👉 **[SETUP.md](SETUP.md) の手順どおりに進めてください**（15〜20分・GitHubアカウントがあれば無料）。
 
+🤖 **Claude Code などのAIアシスタントに任せる場合**は、[SETUP-AI.md](SETUP-AI.md) を読ませてください。リポジトリ作成〜公開〜自動更新の確認まで代行できます。
+
 ## ローカルで見た目だけ確認したい場合
 ```bash
 node build.js                 # data.json から HTML を生成
