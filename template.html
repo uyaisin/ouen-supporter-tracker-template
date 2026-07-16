@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex">
+<title>全国サポーターマップ｜応援共創プロジェクト</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:"Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic",sans-serif;
+         background:#fff; color:#33363F; padding-bottom:48px; }
+  .hero { background:#FFF8F2; padding:34px 16px 26px; text-align:center; border-bottom:3px solid #ffd54f; }
+  .hero .tag { display:inline-block; font-size:13px; font-weight:700; color:#d8243c; letter-spacing:.18em; margin-bottom:10px; }
+  .hero h1 { font-size:25px; font-weight:800; color:#33363F; margin-bottom:6px; line-height:1.5; }
+  .hero h1 .mk { background:linear-gradient(transparent 62%, #ffd54f 62%); padding:0 2px; }
+  .hero .hsub { font-size:14px; font-weight:700; color:#8b0a1f; }
+  .wrap { max-width:760px; margin:0 auto; padding:22px 16px 0; }
+
+  /* 目標ゲージ（サポーター1,000人） */
+  .goal { background:#fff; border:1px solid #ecd8da; border-radius:14px; padding:18px 18px 16px; margin-bottom:16px;
+          box-shadow:0 2px 10px rgba(216,36,60,.05); }
+  .goal .gtop { display:flex; align-items:baseline; justify-content:center; gap:8px; margin-bottom:4px; }
+  .goal .gnow { font-size:46px; font-weight:900; color:#d8243c; line-height:1; }
+  .goal .gof { font-size:16px; font-weight:700; color:#8a8f99; }
+  .goal .glabel { text-align:center; font-size:13px; font-weight:700; color:#8b0a1f; margin-bottom:12px; }
+  .gbar { position:relative; height:20px; background:#f2f2f2; border-radius:10px; overflow:hidden; }
+  .gfill { height:100%; background:linear-gradient(90deg,#ffd54f,#ff7a3c,#d8243c); border-radius:10px;
+           transition:width .6s ease; box-shadow:0 0 10px rgba(216,36,60,.35) inset; }
+  .gpct { text-align:right; font-size:12px; font-weight:800; color:#c07f00; margin-top:6px; }
+
+  /* サマリーカード */
+  .cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:12px; margin-bottom:16px; }
+  .card { background:#fff; border:1px solid #ecd8da; border-radius:10px; padding:14px 16px; }
+  .card .label { font-size:12px; font-weight:700; color:#8a8f99; margin-bottom:2px; }
+  .card .num { font-size:26px; font-weight:800; color:#33363F; }
+  .card .unit { font-size:13px; color:#8a8f99; font-weight:400; }
+  .up-num { color:#d8243c; }
+
+  /* 増えた瞬間バナー */
+  #ticker { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px; }
+  .pop { display:inline-flex; align-items:center; gap:6px; background:#fbe9ec; border:1px solid #d8243c;
+         color:#8b0a1f; font-weight:800; font-size:14px; padding:7px 14px; border-radius:999px;
+         animation:pulse 1.6s ease-in-out infinite; }
+  .pop .plus { color:#d8243c; }
+  @keyframes pulse { 0%,100%{ transform:scale(1);} 50%{ transform:scale(1.05);} }
+
+  .secttl { font-size:13px; font-weight:700; color:#8a8f99; margin:22px 2px 10px; }
+  .chart { background:#fff; border:1px solid #ecd8da; border-radius:12px; padding:14px 12px 6px; }
+  .chart svg { width:100%; height:auto; display:block; }
+  .chart .cnote { font-size:11px; color:#b0b5be; text-align:right; margin:2px 6px 0; }
+  .region { display:flex; gap:10px; margin-bottom:12px; align-items:flex-start; }
+  .rname { width:86px; flex-shrink:0; font-size:12px; font-weight:700; color:#8a8f99; padding-top:11px; }
+  .tiles { display:flex; flex-wrap:wrap; gap:6px; }
+  .tile { position:relative; display:inline-flex; flex-direction:column; align-items:center; padding:6px 11px;
+          border-radius:8px; border:1px solid #e3e3e3; background:#fff; min-width:52px; }
+  .tile .pn { font-size:13px; } .tile .cnt { font-size:12px; font-weight:800; }
+  /* 人数の濃淡（多いほど濃い） */
+  .t0 .pn{ color:#9aa0aa;} .t0 .cnt{ color:#c3c8d0;}
+  .t1 { background:#fff6e0; border-color:#e8c56a;} .t1 .pn{ color:#7a5410;} .t1 .cnt{ color:#c07f00;}
+  .t2 { background:#ffe0c2; border-color:#f0a35a;} .t2 .pn{ color:#8a3d10; font-weight:700;} .t2 .cnt{ color:#d1621a;}
+  .t3 { background:#fbcfd4; border-color:#e06678;} .t3 .pn{ color:#8b0a1f; font-weight:800;} .t3 .cnt{ color:#d8243c;}
+  .t4 { background:#f6b7bf; border-color:#d8243c;} .t4 .pn{ color:#7a0417; font-weight:800;} .t4 .cnt{ color:#b00c22;}
+  /* 増えた県のバッジ */
+  .badge { position:absolute; top:-9px; right:-9px; background:#d8243c; color:#fff; font-size:11px; font-weight:800;
+           padding:2px 7px; border-radius:999px; box-shadow:0 1px 3px rgba(0,0,0,.2); animation:pulse 1.6s ease-in-out infinite; }
+  .foot { margin-top:28px; font-size:12px; color:#b0b5be; text-align:center; }
+
+  @media (max-width:520px){ .rname{ width:100%; padding-top:0;} .region{ flex-direction:column; gap:4px;}
+    .hero h1{ font-size:20px;} .goal .gnow{ font-size:38px;} }
+  body.embed .hero{ padding:22px 16px 16px; } body.embed .hero .tag{ display:none; }
+  body.embed .hero h1{ font-size:20px; } body.embed .foot{ display:none; } body.embed{ padding-bottom:16px; }
+  body.embed .pop, body.embed .badge, body.embed .gfill{ animation:none; }
+</style>
+</head>
+<body>
+<div class="hero">
+  <div class="tag">応援共創プロジェクト</div>
+  <h1><span class="mk">全国サポーターマップ</span></h1>
+  <div class="hsub">目標は、全国のサポーター1,000人！</div>
+</div>
+<div class="wrap">
+  <div class="goal">
+    <div class="gtop"><span class="gnow" id="gnow">0</span><span class="gof">/ __GOAL__人</span></div>
+    <div class="glabel">🤝 全国のサポーター</div>
+    <div class="gbar"><div class="gfill" id="gfill" style="width:0%"></div></div>
+    <div class="gpct" id="gpct">0%</div>
+  </div>
+
+  <div id="ticker"></div>
+  <div class="cards" id="cards"></div>
+
+  <div class="secttl">📈 サポーター数の推移</div>
+  <div class="chart"><div id="chart"></div><div class="cnote">1日1点（最新値）／目標1,000人</div></div>
+
+  <div class="secttl">📍 都道府県別サポーター数</div>
+  <div id="regions"></div>
+
+  <div class="foot">応援共創プロジェクト｜更新 __UPDATED__ ／ 一人ひとりの応援が、全国に広がっています</div>
+</div>
+<script>
+if (new URLSearchParams(location.search).get("embed") === "1") document.body.classList.add("embed");
+const DATA = __DATA__;          // { "東京":12, ... }（都道府県→サポーター数）
+const DELTA = __DELTA__;         // { "福岡":3, ... }（24時間前からの増加分。増えた瞬間演出用）
+const GOAL = __GOAL__;
+const HISTORY = __HISTORY__;     // [ {date:"7/3", total:10}, ... ]（推移グラフ用・1日1点）
+
+const REGIONS = {
+  "北海道・東北": ["北海道","青森","岩手","宮城","秋田","山形","福島"],
+  "関東": ["茨城","栃木","群馬","埼玉","千葉","東京","神奈川"],
+  "中部": ["新潟","富山","石川","福井","山梨","長野","岐阜","静岡","愛知"],
+  "近畿": ["三重","滋賀","京都","大阪","兵庫","奈良","和歌山"],
+  "中国・四国": ["鳥取","島根","岡山","広島","山口","徳島","香川","愛媛","高知"],
+  "九州・沖縄": ["福岡","佐賀","長崎","熊本","大分","宮崎","鹿児島","沖縄"],
+  "その他・海外": ["オンライン","海外"]
+};
+
+function get(name){ return DATA[name] || DATA[name.replace(/(都|道|府|県)$/,"")] || 0; }
+function getDelta(name){ return DELTA[name] || DELTA[name.replace(/(都|道|府|県)$/,"")] || 0; }
+function tier(n){ if(n>=10)return 4; if(n>=5)return 3; if(n>=2)return 2; if(n>=1)return 1; return 0; }
+
+function render(){
+  let total=0, joined=0, todayUp=0, html="";
+  for(const [region,names] of Object.entries(REGIONS)){
+    let rowHtml="", rowHas=false;
+    for(const name of names){
+      const n=get(name); if(n>0){ total+=n; joined++; rowHas=true; }
+      const d=getDelta(name); if(d>0) todayUp+=d;
+      rowHtml += '<span class="tile t'+tier(n)+'">'+
+        (d>0?'<span class="badge">+'+d+'</span>':'')+
+        '<span class="pn">'+name+'</span><span class="cnt">'+n+'</span></span>';
+    }
+    // その他・海外は全部ゼロなら隠す
+    if(region==="その他・海外" && !rowHas) continue;
+    html += '<div class="region"><div class="rname">'+region+'</div><div class="tiles">'+rowHtml+'</div></div>';
+  }
+  document.getElementById("regions").innerHTML = html;
+
+  // 目標ゲージ
+  document.getElementById("gnow").textContent = total.toLocaleString();
+  const pct = Math.min(100, total/GOAL*100);
+  document.getElementById("gfill").style.width = Math.max(pct, total>0?1.5:0)+"%";
+  document.getElementById("gpct").textContent = "目標達成率 "+pct.toFixed(1)+"%（あと"+Math.max(0,GOAL-total).toLocaleString()+"人）";
+
+  // 増えた瞬間バナー
+  const ups = Object.entries(DELTA).filter(([,d])=>d>0).sort((a,b)=>b[1]-a[1]);
+  document.getElementById("ticker").innerHTML = ups.length
+    ? ups.map(([name,d])=>'<span class="pop">'+name+' <span class="plus">+'+d+'人！</span></span>').join("")
+    : '';
+
+  // サマリーカード
+  document.getElementById("cards").innerHTML =
+    '<div class="card"><div class="label">🤝 総サポーター</div><div class="num up-num">'+total.toLocaleString()+' <span class="unit">人</span></div></div>'+
+    '<div class="card"><div class="label">📍 応援が届いた県</div><div class="num">'+joined+' <span class="unit">/ 47県</span></div></div>'+
+    '<div class="card"><div class="label">⬆️ 24時間の増加</div><div class="num up-num">+'+todayUp+' <span class="unit">人</span></div></div>';
+}
+
+function renderChart(){
+  const box = document.getElementById("chart");
+  const H = Array.isArray(HISTORY) ? HISTORY.slice(-30) : [];
+  if(H.length < 2){ box.innerHTML = '<div style="padding:24px 8px;text-align:center;color:#b0b5be;font-size:13px;">データがたまると推移グラフが表示されます</div>'; return; }
+  const W=760, HT=240, padL=42, padR=14, padT=14, padB=30;
+  const maxV = Math.max(...H.map(d=>d.total));
+  const niceMax = Math.max(10, Math.ceil(maxV/10)*10);
+  const n = H.length;
+  const X = i => padL + (W-padL-padR) * (n===1?0.5:i/(n-1));
+  const Y = v => padT + (HT-padT-padB) * (1 - v/niceMax);
+  // グリッド線＋Y軸ラベル（0 / 中間 / 最大）
+  let grid="";
+  [0, niceMax/2, niceMax].forEach(v=>{
+    const y=Y(v);
+    grid += '<line x1="'+padL+'" y1="'+y+'" x2="'+(W-padR)+'" y2="'+y+'" stroke="#eee" stroke-width="1"/>'+
+            '<text x="'+(padL-8)+'" y="'+(y+4)+'" text-anchor="end" font-size="11" fill="#b0b5be">'+Math.round(v)+'</text>';
+  });
+  // 折れ線＋塗り
+  const pts = H.map((d,i)=>[X(i),Y(d.total)]);
+  const line = pts.map((p,i)=>(i?'L':'M')+p[0].toFixed(1)+' '+p[1].toFixed(1)).join(' ');
+  const area = 'M'+pts[0][0].toFixed(1)+' '+Y(0)+' '+pts.map(p=>'L'+p[0].toFixed(1)+' '+p[1].toFixed(1)).join(' ')+' L'+pts[n-1][0].toFixed(1)+' '+Y(0)+' Z';
+  // X軸ラベル（最初・中間・最後）
+  const labelIdx = [0, Math.floor((n-1)/2), n-1];
+  let xlab="";
+  labelIdx.forEach(i=>{ xlab += '<text x="'+X(i)+'" y="'+(HT-8)+'" text-anchor="middle" font-size="11" fill="#8a8f99">'+H[i].date+'</text>'; });
+  // 最新点＋数値
+  const last = pts[n-1];
+  const dot = '<circle cx="'+last[0]+'" cy="'+last[1]+'" r="4.5" fill="#d8243c"/>'+
+    '<text x="'+last[0]+'" y="'+(last[1]-10)+'" text-anchor="end" font-size="14" font-weight="800" fill="#d8243c">'+H[n-1].total+'人</text>';
+  box.innerHTML =
+    '<svg viewBox="0 0 '+W+' '+HT+'" xmlns="http://www.w3.org/2000/svg">'+
+    '<defs><linearGradient id="ag" x1="0" y1="0" x2="0" y2="1">'+
+    '<stop offset="0" stop-color="#d8243c" stop-opacity="0.22"/>'+
+    '<stop offset="1" stop-color="#d8243c" stop-opacity="0"/></linearGradient></defs>'+
+    grid +
+    '<path d="'+area+'" fill="url(#ag)"/>'+
+    '<path d="'+line+'" fill="none" stroke="#d8243c" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>'+
+    xlab + dot +
+    '</svg>';
+}
+
+render();
+renderChart();
+</script>
+</body>
+</html>

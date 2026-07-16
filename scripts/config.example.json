@@ -1,0 +1,4 @@
+{
+  "_comment": "シートが完成したら、この内容を scripts/config.json として保存し dataEndpoint に Apps Script のexec URLを入れる。config.json はgitignoreされる（公開リポジトリに載せない）。",
+  "dataEndpoint": ""
+}
