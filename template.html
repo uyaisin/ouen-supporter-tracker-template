@@ -122,6 +122,17 @@ function lookup(obj, name){
 }
 function get(name){ return lookup(DATA, name); }
 function getDelta(name){ return lookup(DELTA, name); }
+
+// 47都道府県・オンライン・海外のどれにも一致しないキー（例: マレーシア等の国名）は「海外」に合算する
+function foldUnknown(obj){
+  const names=Object.values(REGIONS).flat();
+  const strip=s=>s.replace(/(都|道|府|県)$/,"");
+  const known=k=>names.some(n=>n===k||strip(n)===strip(k));
+  let extra=0;
+  for(const k of Object.keys(obj)){ if(!known(k)){ extra+=Number(obj[k])||0; delete obj[k]; } }
+  if(extra>0) obj["海外"]=(obj["海外"]||0)+extra;
+}
+foldUnknown(DATA); foldUnknown(DELTA);
 function tier(n){ if(n>=10)return 4; if(n>=5)return 3; if(n>=2)return 2; if(n>=1)return 1; return 0; }
 
 function render(){
