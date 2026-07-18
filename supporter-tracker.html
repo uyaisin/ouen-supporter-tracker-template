@@ -114,8 +114,25 @@ const REGIONS = {
   "その他・海外": ["オンライン","海外"]
 };
 
-function get(name){ return DATA[name] || DATA[name.replace(/(都|道|府|県)$/,"")] || 0; }
-function getDelta(name){ return DELTA[name] || DELTA[name.replace(/(都|道|府|県)$/,"")] || 0; }
+// タイル名「東京」とデータキー「東京都」のように接尾辞の有無が違っても拾えるようにする
+function lookup(obj, name){
+  if (obj[name] != null) return obj[name];
+  for (const s of ["都","道","府","県"]) if (obj[name+s] != null) return obj[name+s];
+  return obj[name.replace(/(都|道|府|県)$/,"")] || 0;
+}
+function get(name){ return lookup(DATA, name); }
+function getDelta(name){ return lookup(DELTA, name); }
+
+// 47都道府県・オンライン・海外のどれにも一致しないキー（例: マレーシア等の国名）は「海外」に合算する
+function foldUnknown(obj){
+  const names=Object.values(REGIONS).flat();
+  const strip=s=>s.replace(/(都|道|府|県)$/,"");
+  const known=k=>names.some(n=>n===k||strip(n)===strip(k));
+  let extra=0;
+  for(const k of Object.keys(obj)){ if(!known(k)){ extra+=Number(obj[k])||0; delete obj[k]; } }
+  if(extra>0) obj["海外"]=(obj["海外"]||0)+extra;
+}
+foldUnknown(DATA); foldUnknown(DELTA);
 function tier(n){ if(n>=10)return 4; if(n>=5)return 3; if(n>=2)return 2; if(n>=1)return 1; return 0; }
 
 function render(){
